@@ -16,6 +16,7 @@ use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Factory;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
+use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Runtime\RuntimeInterface;
@@ -39,6 +40,21 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
     private $io;
 
     private static $activated = false;
+
+    /**
+     * Triggers the plugin's main functionality, making it possible to run the plugin as a custom command.
+     */
+    public static function run(Event $event): void
+    {
+        $io = $event->getIO();
+        $composer = $event->getComposer();
+
+        $instance = new static();
+
+        $instance->io = $io;
+        $instance->composer = $composer;
+        $instance->updateAutoloadFile();
+    }
 
     public function activate(Composer $composer, IOInterface $io): void
     {
